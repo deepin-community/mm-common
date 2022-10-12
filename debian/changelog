@@ -1,0 +1,170 @@
+mm-common (1.0.3-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bicha <jbicha@debian.org>  Mon, 23 Aug 2021 19:56:00 -0400
+
+mm-common (1.0.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump debhelper-compat to 13
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 11 Oct 2020 07:04:54 -0400
+
+mm-common (1.0.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * Build-Depend on debhelper-compat 12
+  * Build-Depend on dh-sequence-gnome instead of gnome-pkg-tools
+  * Bump Standards-Version to 4.5.0
+  * Build with meson
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sat, 11 Apr 2020 14:57:54 -0400
+
+mm-common (0.9.12-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update Vcs fields for migration to https://salsa.debian.org/
+  * Bump debhelper compat to 11
+  * Bump Standards-Version to 4.1.4
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 08 Apr 2018 16:13:54 -0400
+
+mm-common (0.9.11-2) unstable; urgency=medium
+
+  * Update Vcs fields for conversion to git
+  * Add debian/gbp.conf
+  * Bump Standards-Version to 4.1.2
+
+ -- Jeremy Bicha <jbicha@debian.org>  Fri, 15 Dec 2017 19:38:01 -0500
+
+mm-common (0.9.11-1) unstable; urgency=medium
+
+  * New upstream release
+  * Drop reproducible build patch: Applied in new release.
+  * Bump Standards-Version to 4.1.0
+
+ -- Jeremy Bicha <jbicha@debian.org>  Sun, 03 Sep 2017 12:54:56 -0400
+
+mm-common (0.9.10-3) unstable; urgency=medium
+
+  [ Helmut Grohne ]
+  * Add Multi-Arch: foreign. (Closes: #840197)
+
+ -- Michael Biebl <biebl@debian.org>  Sun, 09 Oct 2016 20:10:50 +0200
+
+mm-common (0.9.10-2) unstable; urgency=medium
+
+  * Convert from cdbs to dh.
+  * Bump debhelper compat level to 10.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 13 Sep 2016 19:32:50 +0200
+
+mm-common (0.9.10-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 3.9.8.
+  * Make build reproducible by passing -n to gzip when creating
+    skeletonmm.tar.gz.
+  * Use dh-autoreconf to update the build system.
+  * Make dependency on automake, libtool and pkg-config unversioned. Even the
+    versions in wheezy are recent enough and in case of pkg-config it prevents
+    the installation of pkgconf. (Closes: #734483)
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 15 Apr 2016 16:10:41 +0200
+
+mm-common (0.9.9-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Michael Biebl <biebl@debian.org>  Sat, 28 Nov 2015 02:34:47 +0100
+
+mm-common (0.9.8-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 3.9.6. No further changes.
+
+ -- Michael Biebl <biebl@debian.org>  Wed, 22 Jul 2015 00:55:20 +0200
+
+mm-common (0.9.7-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump Standards-Version to 3.9.5. No further changes.
+
+ -- Michael Biebl <biebl@debian.org>  Tue, 23 Sep 2014 17:32:56 +0200
+
+mm-common (0.9.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * Track .xz tarballs.
+  * Switch to source format 3.0 (quilt).
+  * Add Vcs-* fields.
+  * Bump debhelper compatibility level to 9.
+  * Update debian/copyright following the final copyright format 1.0 spec.
+  * Bump Standards-Version to 3.9.4. No further changes.
+  * Use automaken as alternative dependency instead of listing specific
+    automake versions.
+
+ -- Michael Biebl <biebl@debian.org>  Fri, 14 Jun 2013 03:28:54 +0200
+
+mm-common (0.9.5-1) unstable; urgency=low
+
+  [ Krzysztof Klimonda ]
+  * New upstream version.
+
+  [ Michael Terry ]
+  * debian/copyright:
+    - Add skeletonmm/ and debian/ copyright stanzas (Closes: #619507)
+
+  [ Sebastian Dröge ]
+  * New upstream version.
+
+ -- Sebastian Dröge <slomo@debian.org>  Thu, 14 Apr 2011 09:13:27 +0200
+
+mm-common (0.9.2-1) unstable; urgency=low
+
+  * Initial upload to unstable (Closes: #577074).
+    Package based on the package by Daniel Elstner from
+    https://launchpad.net/~daniel-elstner/+archive/ppa
+
+ -- Sebastian Dröge <slomo@debian.org>  Fri, 09 Apr 2010 13:22:22 +0200
+
+mm-common (0.9.2-1~ppa1) lucid; urgency=low
+
+  * New upstream release.
+
+ -- Daniel Elstner <daniel.kitta@gmail.com>  Fri, 05 Feb 2010 23:04:20 +0200
+
+mm-common (0.9.1-1~ppa1) lucid; urgency=low
+
+  * New upstream release.
+    - skeletonmm source tree now installed as a tar archive
+      Added: override DEB_TARBALL to make CDBS ignore skeletonmm.tar.gz
+      Dropped: obsolete debian/mm-common.lintian-overrides
+      Removed: most dh_compress and dh_fixperms exceptions
+
+ -- Daniel Elstner <daniel.kitta@gmail.com>  Thu, 31 Dec 2009 17:27:59 +0100
+
+mm-common (0.9-1~revu3) lucid; urgency=low
+
+  * Mention GNOME in the package short description.
+  * Include upstream ChangeLog in the package.
+  * Simplify dh_compress exclusion list and exclude the autogen.sh in
+    the skeleton sources from dh_fixperms.
+  * Override Lintian warnings for the skeletonmm source tree.
+    Added: debian/mm-common.lintian-overrides
+
+ -- Daniel Elstner <daniel.kitta@gmail.com>  Mon, 28 Dec 2009 01:37:27 +0100
+
+mm-common (0.9-1~revu2) lucid; urgency=low
+
+  * Fix REVU warnings. (LP: #500596)
+    Added: debian/watch file.
+
+ -- Daniel Elstner <daniel.kitta@gmail.com>  Sat, 26 Dec 2009 21:08:23 +0100
+
+mm-common (0.9-1~ppa1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Daniel Elstner <daniel.kitta@gmail.com>  Sat, 26 Dec 2009 19:23:52 +0100
