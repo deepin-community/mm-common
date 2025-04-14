@@ -1,3 +1,152 @@
+2024-01-07  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  1.0.6
+
+2023-12-11  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  skeletonmm/meson.build: Don't fail if warning_level=everything
+
+2023-07-27  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  util/meson_aux/libstdcxx-tag.py: Try curl without compression
+
+  If the curl command fails with the --compressed option,
+  try it without that option.
+  Reduce the exceedingly long 1-hour timeout.
+  
+  See https://github.com/libsigcplusplus/libsigcplusplus/issues/98
+
+2023-07-10  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  Update mm-common.doap
+
+2023-07-10  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  Remove AUTHORS and add info to README.md
+
+  See gtkmm#140
+
+2023-05-18  Chun-wei Fan  <fanchunwei@src.gnome.org>
+
+  Meson: Fix use as subproject on Windows
+
+  The path that we put into mm-common-get2 for pkgdatadir need to be normalized
+  if we are building on cmd.exe consoles on Windows, such as for Visual Studio
+  and clang-cl builds.
+  
+  Use Meson's fs.as_posix() to help us here.
+  
+  Fixes https://github.com/libsigcplusplus/libsigcplusplus/issues/89.
+
+2023-03-05  Murray Cumming  <murraycu@google.com>
+
+  MM_AX_CXX_COMPILE_STDCXX: Merge in changes from upstream AX_CXX_COMPILE_STDCXX
+
+  Take recent changes from
+  http://git.savannah.gnu.org/gitweb/?p=autoconf-archive.git;a=blob_plain;f=m4/ax_cxx_compile_stdcxx.m4
+  and add MM/_MM prefixes where appropriate.
+  
+  This adds support for 20 as an argument for MM_AX_CXX_COMPILE_STDCXX().
+
+2023-01-08  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  skeletonmm/meson.build: Simplify if-file-exists test
+
+2023-01-04  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  skeletonmm: Fix the evaluation of is_git_build on Windows
+
+  See gtkmm#131
+
+2022-12-02  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  1.0.5
+
+2022-12-02  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  meson.build: Simplify lookup of python command
+
+  See libsigcplusplus PR#83
+
+2022-12-02  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  skeletonmm: Add build-tests option
+
+  and simplify lookup of python command.
+  
+  See libsigcplusplus PR#83 and PR#84
+
+2022-09-27  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  skeletonmm/meson.build: Detect if we build from a git subtree
+
+  See gtkmm!72
+
+2022-09-26  Jelle van der Waa  <jelle@archlinux.org>
+
+  util/meson_aux: make tarball reproducible
+
+  Set the owner/gid of a tarball to make the output tarball reproducible.
+  
+  Signed-off-by: Jelle van der Waa <jelle@archlinux.org>
+
+2022-09-17  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  Convert README to README.md and OVERVIEW.md
+
+  * README -> README.md + OVERVIEW.md
+  * meson.build: Install README.md and OVERVIEW.md
+  * Makefile.am: Distribute and install README.md and OVERVIEW.md
+  * configure.ac: Set `foreign` option to automake.
+  Without the `foreign` option, old versions of automake require
+  a README file, which no longer exists. New versions (like 1.16.5)
+  without the `foreign` option require README or README.md.
+
+2022-05-13  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  skeletonmm/meson.build: Avoid configuration warnings
+
+2022-02-11  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  1.0.4
+
+2022-02-11  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  Update README
+
+2022-02-07  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  meson.build: Don't use deprecated find_program().path()
+
+2022-02-06  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  meson.build: Specify 'check' option in run_command()
+
+  The default value will be changed in future Meson releases.
+  
+  Don't use deprecated python3.path() and execute(..., gui_app: ...).
+  Let import('python').find_installation() always find the python
+  installation used to run Meson.
+
+2021-08-16  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  Add doc_postprocess.py and doc_install.py
+
+  Generating documentation does not require Perl in Meson builds.
+  
+  util/build_scripts/doc-reference.py calls doc_postprocess.py and
+  doc_install.py instead of doc-postprocess.pl and doc-install.pl.
+  
+  The Perl scripts are kept. They are used in Autotools builds.
+  mm-common-prepare still copies them.
+
+2021-07-17  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
+
+  Python scripts: Specify file encoding
+
+  The default file encoding is platform dependent in Python.
+  Better tell which encoding to use when text files are written.
+
 2021-05-20  Kjell Ahlstedt  <kjellahlstedt@gmail.com>
 
   1.0.3
@@ -1447,169 +1596,4 @@
 
   * util/doxygen.css: Use unit 'em' instead of 'px' where feasible.
   Merge or split blocks where appropriate to streamline the CSS.
-
-2009-09-02  Daniel Elstner  <danielk@openismus.com>
-
-  Bump version to mm-common 0.7.2 and update news
-
-  * configure.ac (AC_INIT): Increment version to mm-common 0.7.2.
-  Specify the optional PACKAGE_URL argument used by recent versions
-  of Autoconf.
-  * NEWS: Write news entry for the mm-common 0.7.2 release.
-
-2009-09-02  Daniel Elstner  <danielk@openismus.com>
-
-  Increase the default font size to 90%
-
-  * util/doxygen.css (body): Change the font height and line spacing to
-  90%/150% in order to better match the default appearance of gtk-doc.
-
-2009-09-02  Daniel Elstner  <danielk@openismus.com>
-
-  Reduce duplicate logic in the Devhelp transform
-
-  * util/tagfile-to-devhelp2.xsl (functions): Apply the templates to all
-  <compound> elements, and add a catch-all template to filter anything
-  which did not match.
-
-2009-09-02  Daniel Elstner  <danielk@openismus.com>
-
-  Show Doxygen groups as modules in Devhelp
-
-  * util/tagfile-to-devhelp2.xsl (chapters): Add "Modules" chapter and
-  list all compounds of kind "group" there.
-
-2009-09-02  Daniel Elstner  <danielk@openismus.com>
-
-  Do not extract keywords from Doxygen groups
-
-  * util/tagfile-to-devhelp2.xsl (functions): Only list members of
-  compounds which correspond to a C++ language construct, i.e. a class
-  or a namespace.  Other Doxygen compounds like groups or files do not
-  exist at the language level, and their names should not be used like
-  namespace prefixes.
-
-2009-09-02  Daniel Elstner  <danielk@openismus.com>
-
-  Concatenate the destination path only when needed
-
-  * util/doc-install.pl: Move the assignment to $out_file into the
-  conditional block where it is actually used.
-
-2009-09-01  Daniel Elstner  <danielk@openismus.com>
-
-  Remove pointless prerequisite from dist-changelog
-
-  * build/dist-changelog.am (dist-changelog): Remove internal git file
-  from the target prerequisites.  If the source directory is not a git
-  repository, the command will fail anyway.
-
-2009-09-01  Daniel Elstner  <danielk@openismus.com>
-
-  Avoid truncating the bottom-most ChangeLog message
-
-  * build/dist-changelog.am (dist-changelog): Always output a blank line
-  after each extracted log entry, in order to avoid tripping up the sed
-  program used to post-process the git output.
-
-2009-08-31  Daniel Elstner  <daniel.kitta@gmail.com>
-
-  Collapse blank lines in the generated ChangeLog
-
-  * build/dist-changelog.am (dist-changelog): Modify the sed program to
-  post-process the git output so that it collapses multiple consecutive
-  blank lines into a single one.
-
-2009-08-31  Daniel Elstner  <danielk@openismus.com>
-
-  Limit centering of HTML headings to first heading
-
-  * util/doxygen.css (h[23]): Remove "text-align: center" attribute.
-  (h1 + h3): Center a <h3> element immediately following the centered
-  <h1> element, as generated by Doxygen on the main page.
-
-2009-08-31  Daniel Elstner  <danielk@openismus.com>
-
-  Do not center HTML headings within tables
-
-  * util/doxygen.css (table h[23]): Set "text-align" to "left" for <h2>
-  and <h3> tags with a <table> ancestor.
-
-2009-08-31  Daniel Elstner  <danielk@openismus.com>
-
-  Update style sheet for XHTML output of Doxygen 1.6
-
-  * util/doxygen.css: Refine style definitions to cope with the change
-  in behavior of user agents due to Doxygen's recent adoption of XHTML
-  as default output format.
-
-2009-08-28  Daniel Elstner  <danielk@openismus.com>
-
-  Increment version to 0.7.1 and update news
-
-  * configure.ac (AC_INIT): Increment version to mm-common 0.7.1.
-  * NEWS: Write news entry for mm-common 0.7.1.
-
-2009-08-28  Daniel Elstner  <danielk@openismus.com>
-
-  Do not fail hard if glibmm doctools are missing
-
-  * macros/mm-doc.m4 (_MM_CONFIG_DOCTOOL_DIR): Do not yet verify at this
-  point whether the directory returned by pkg-config is valid.
-  (_MM_ARG_ENABLE_DOCUMENTATION): Check the value of $MMDOCTOOLDIR here,
-  but do do not abort even if not set, unless --enable-documentation has
-  been explicitly requested.
-
-2009-08-28  Daniel Elstner  <danielk@openismus.com>
-
-  Write news entry for mm-common 0.7 release
-
-2009-08-28  Daniel Elstner  <danielk@openismus.com>
-
-  Improve Doxygen HTML style sheet
-
-  * util/doxygen.css: Tweak the styles a bit to improve the look of the
-  Doxygen HTML output.  Most importantly, get the text size right.
-
-2009-08-27  Daniel Elstner  <danielk@openismus.com>
-
-  Increment version to mm-common 0.7
-
-  * configure.ac (AC_INIT): Increment version number to 0.7 to signify
-  the addition of the shared Doxygen style sheet.
-
-2009-08-27  Daniel Elstner  <danielk@openismus.com>
-
-  Add shared Doxygen stylesheet for the C++ bindings
-
-  * util/doxygen.css: New file, defining the common style of the C++
-  binding reference documentation.
-  * util/mm-common-prepare.in: Copy doxygen.css into the documentation
-  tools directory of the source tree if requested.
-  * Makefile.am (dist_doctool_DATA): Distribute and install doxygen.css.
-
-2009-08-25  Daniel Elstner  <danielk@openismus.com>
-
-  Update NEWS for mm-common 0.6.1 release
-
-2009-08-25  Daniel Elstner  <danielk@openismus.com>
-
-  Bump version number to mm-common 0.6.1
-
-  * configure.ac (AC_INIT): Bump version number to 0.6.1 to signify the
-  change of the default location of the public reference documentation.
-
-2009-08-25  Daniel Elstner  <danielk@openismus.com>
-
-  Change default doc location to library.gnome.org
-
-  * build/doc-reference.am (pubdocbase): Point to library.gnome.org.
-  (htmlrefpub): Adjust to directory layout on library.gnome.org.
-
-2009-08-24  Daniel Elstner  <danielk@openismus.com>
-
-  Update NEWS for 0.6 release
-
-  * NEWS: Bump release date of mm-common 0.6.  Mention new Autoconf
-  macros for particular program checks.
 
