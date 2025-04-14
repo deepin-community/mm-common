@@ -4,10 +4,10 @@ project('skeletonmm', 'cpp',
   version: '0.1.0',
   license: 'LGPLv2.1+',
   default_options: [
-    'cpp_std=c++17'
+    'cpp_std=c++17',
+    'warning_level=1',
   ],
-  meson_version: '>= 0.54.0', # required for meson.override_dependency()
-                              # and dep.get_variable(internal:)
+  meson_version: '>= 0.56.0', # required for executable(..., win_subsystem: ...)
 )
 
 skeletonmm_api_version = '1.0'
@@ -37,26 +37,27 @@ macos_darwin_versions = [
   '@0@.@1@'.format(libtool_soversion[0] + 1, libtool_soversion[1])
 ]
 
-# Use these instead of meson.source_root() and meson.build_root() in subdirectories.
-# source_root() and build_root() are not useful, if this is a subproject.
-project_source_root = meson.current_source_dir()
-project_build_root = meson.current_build_dir()
+# Source and build root directories of the current (sub)project.
+project_source_root = meson.project_source_root()
+project_build_root = meson.project_build_root()
 
-python3 = import('python').find_installation('python3')
-python_version = python3.language_version()
-python_version_req = '>= 3.5'
-if not python_version.version_compare(python_version_req)
-  error('Requires Python @0@, found @1@.'.format(python_version_req, python_version))
-endif
+python3 = find_program('python3', version: '>= 3.5')
 
 # Do we build from a git repository?
-# Suppose we do if and only if a '.git' directory or file exists.
+# Suppose we do if and only if the meson.build file is tracked by git.
 cmd_py = '''
-import os
-import sys
-sys.exit(os.path.isdir("@0@") or os.path.isfile("@0@"))
-'''.format(project_source_root / '.git')
-is_git_build = run_command(python3, '-c', cmd_py).returncode() != 0
+import shutil, subprocess, sys
+git_exe = shutil.which('git')
+if not git_exe:
+  sys.exit(1)
+cmd = [ git_exe, 'ls-files', '--error-unmatch', 'meson.build' ]
+sys.exit(subprocess.run(cmd, cwd=sys.argv[1], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode)
+'''
+is_git_build = run_command(
+  python3, '-c', cmd_py,
+  project_source_root,
+  check: false,
+).returncode() == 0
 
 # Are we testing a dist tarball while it's being built?
 is_dist_check = project_source_root.contains('dist-unpack') and \
@@ -69,15 +70,23 @@ maintainer_mode = maintainer_mode_opt == 'true' or \
 if is_dist_check
   message('Looks like a tarball is being tested. ' + \
           'Option "dist-warnings" is used instead of "warnings".')
-  warning_level = get_option('dist-warnings')
+  cpp_warnings = get_option('dist-warnings')
 else
-  warning_level = get_option('warnings')
+  cpp_warnings = get_option('warnings')
 endif
+if get_option('warning_level') in ['0','1','2','3','4','5']
+  warning_level = get_option('warning_level').to_int()
+else
+  # For instance get_option('warning_level') == 'everything'
+  warning_level = 99
+endif
+werror = get_option('werror')
 build_deprecated_api = get_option('build-deprecated-api')
 build_documentation_opt = get_option('build-documentation')
 build_documentation = build_documentation_opt == 'true' or \
                      (build_documentation_opt == 'if-maintainer-mode' and maintainer_mode)
 build_examples = get_option('build-examples')
+build_tests = get_option('build-tests')
 
 # Installation directories are relative to {prefix}.
 install_prefix = get_option('prefix')
@@ -114,7 +123,6 @@ if maintainer_mode and not mm_common_get.found()
   mm_common_get = find_program('mm-common-get', required: true)
 endif
 m4 = find_program('m4', required: maintainer_mode) # Used by gmmproc (in glibmm)
-perl = find_program('perl', required: maintainer_mode or build_documentation)
 doxygen = find_program('doxygen', required: build_documentation)
 dot = find_program('dot', required: build_documentation) # Used by Doxygen
 xsltproc = find_program('xsltproc', required: build_documentation)
@@ -133,29 +141,49 @@ check_dllexport_usage = script_dir / 'check-dllexport-usage.py'
 if maintainer_mode
   # Copy files to untracked/build_scripts and untracked/doc.
   run_command(mm_common_get, '--force', script_dir,
-    project_source_root / 'untracked' / 'doc')
-else
-  cmd_py = '''
-import os
-import sys
-sys.exit(os.path.isfile("@0@"))
-'''.format(generate_binding)
-  file_exists = run_command(python3, '-c', cmd_py).returncode() != 0
-  if not file_exists
-    error('Missing files in untracked/. You must enable maintainer-mode.')
-  endif
+    project_source_root / 'untracked' / 'doc',
+    check: true,
+  )
+elif not import('fs').is_file(generate_binding)
+  error('Missing files in untracked/. You must enable maintainer-mode.')
 endif
+
+# Check if perl is required and available.
+doc_perl_prop = run_command(
+  python3, doc_reference, 'get_script_property',
+  '', # MMDOCTOOLDIR is not used
+  'requires_perl',
+  check: false,
+)
+doc_requires_perl = true
+if doc_perl_prop.returncode() == 0 and doc_perl_prop.stdout() == 'false'
+  doc_requires_perl = false
+endif
+
+perl = find_program('perl', required: maintainer_mode or \
+  (build_documentation and doc_requires_perl))
 
 cpp_compiler = meson.get_compiler('cpp')
 
 # Set compiler warnings.
+# Meson warns if any of the /W1, /W2, /W3, /W4, /Wall, -Wall, -Wextra, -Werror
+# compiler options are added with add_project_arguments().
+# Avoid such warnings, when possible.
+# See _warn_about_builtin_args() in meson/mesonbuild/interpreter/interpreter.py.
 warning_flags = []
-if warning_level == 'min'
-  warning_flags = ['-Wall']
-elif warning_level == 'max' or warning_level == 'fatal'
-  warning_flags = '-pedantic -Wall -Wextra -Wformat-security -Wsuggest-override -Wshadow -Wno-long-long'.split()
-  if warning_level == 'fatal'
-    warning_flags += ['-Werror']
+if cpp_warnings == 'min'
+  if warning_level == 0
+    warning_flags = ['-Wall']
+  endif
+elif cpp_warnings == 'max' or cpp_warnings == 'fatal'
+  if warning_level < 3
+    warning_flags = ['-pedantic', '-Wall', '-Wextra']
+  endif
+  warning_flags += '-Wformat-security -Wsuggest-override -Wshadow -Wno-long-long'.split()
+  if cpp_warnings == 'fatal'
+    if not werror
+      warning_flags += ['-Werror']
+    endif
     deprecations = 'G SKELETON GLIBMM SIGCXX'.split()
     foreach d : deprecations
       warning_flags += '-D@0@_DISABLE_DEPRECATED'.format(d)
@@ -178,13 +206,13 @@ subdir('doc/reference')
 if can_add_dist_script
   # Add a ChangeLog file to the distribution directory.
   meson.add_dist_script(
-    python3.path(), dist_changelog,
+    python3, dist_changelog,
     project_source_root,
   )
   # Add build scripts to the distribution directory, and delete .gitignore
   # files and an empty $MESON_PROJECT_DIST_ROOT/build/ directory.
   meson.add_dist_script(
-    python3.path(), dist_build_scripts,
+    python3, dist_build_scripts,
     project_source_root,
     'untracked' / 'build_scripts',
   )
@@ -228,10 +256,12 @@ summary = [
   meson.project_name() + ' ' + meson.project_version(),
   '',
   '         Maintainer mode: @0@@1@'.format(maintainer_mode_opt, real_maintainer_mode),
-  '       Compiler warnings: @0@'.format(warning_level),
+  '       Compiler warnings: @0@ (warning_level: @1@, werror: @2@)'. \
+                             format(cpp_warnings, warning_level, werror),
   '    Build deprecated API: @0@'.format(build_deprecated_api),
   'Build HTML documentation: @0@@1@'.format(build_documentation_opt, real_build_documentation),
   '  Build example programs: @0@'.format(build_examples),
+  '     Build test programs: @0@'.format(build_tests),
   'Directories:',
   '                  prefix: @0@'.format(install_prefix),
   '              includedir: @0@'.format(install_prefix / install_includedir),

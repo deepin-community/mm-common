@@ -57,7 +57,9 @@ dist_aclocal_macro_DATA =		\
 doctooldir = $(pkgdatadir)/doctool
 dist_doctool_DATA =			\
 	util/doc-install.pl		\
+	util/doc_install.py		\
 	util/doc-postprocess.pl		\
+	util/doc_postprocess.py		\
 	util/doxygen.css		\
 	util/doxygen-extra.css		\
 	util/tagfile-to-devhelp2.xsl
@@ -75,7 +77,7 @@ noinst_DATA = \
 	doctags/mm-common-libstdc++-uninstalled.pc \
 	util/mm-common-util-uninstalled.pc
 
-dist_doc_DATA = README
+dist_doc_DATA = README.md OVERVIEW.md
 doc_DATA = skeletonmm.tar.gz
 
 skeletonmm_data_files =							\

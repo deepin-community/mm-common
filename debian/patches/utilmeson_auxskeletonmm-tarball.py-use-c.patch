@@ -1,0 +1,34 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Tue, 28 Nov 2023 16:57:13 -0800
+X-Dgit-Generated: 1.0.5-1.1 77d8a907867d87eb56f57cfd5d3226aba19355d8
+Subject: util/meson_aux/skeletonmm-tarball.py: Use consistent mode on files in
+
+the generated tarball. (Closes: #977177)
+
+Signed-off-by: Vagrant Cascadian <vagrant@reproducible-builds.org>
+
+---
+
+diff --git a/util/meson_aux/skeletonmm-tarball.py b/util/meson_aux/skeletonmm-tarball.py
+index 138184c..a87590e 100755
+--- a/util/meson_aux/skeletonmm-tarball.py
++++ b/util/meson_aux/skeletonmm-tarball.py
+@@ -10,6 +10,7 @@ import os
+ import sys
+ import shutil
+ import tarfile
++import stat
+ 
+ if sys.argv[1] == 'check':
+   # Called from run_command() during setup or configuration.
+@@ -42,6 +43,10 @@ else:
+ def reset(tarinfo):
+     tarinfo.uid = tarinfo.gid = 0
+     tarinfo.uname = tarinfo.gname = "root"
++    if tarinfo.isdir() or (tarinfo.mode & 0o111) != 0:
++        tarinfo.mode = stat.S_IFMT(tarinfo.mode) | 0o755
++    else:
++        tarinfo.mode = stat.S_IFMT(tarinfo.mode) | 0o644
+     return tarinfo
+ 
+ 

@@ -1,17 +1,13 @@
 # This file is part of mm-common.
 
 project('mm-common',
-  version: '1.0.3',
-  meson_version: '>= 0.54.0', # required for meson.override_dependency()
-  license: 'GPLv2+'
+  version: '1.0.6',
+  license: 'GPLv2+',
+  meson_version: '>= 0.55.0', # required for meson.add_dist_script(python3, ...)
+                              # and meson.add_install_script(python3, ...)
 )
 
-python3 = import('python').find_installation('python3')
-python_version = python3.language_version()
-python_version_req = '>= 3.5'
-if not python_version.version_compare(python_version_req)
-  error('Requires Python @0@, found @1@.'.format(python_version_req, python_version))
-endif
+python3 = find_program('python3', version: '>= 3.5')
 
 # Use these instead of meson.source_root() and meson.build_root().
 # source_root() and build_root() are not useful, if this is a subproject.
@@ -113,8 +109,7 @@ configure_file(
 
 if find_program('aclocal', required: false).found()
   meson.add_install_script(
-    python3.path(),
-    script_dir / 'extra-install-cmd.py',
+    python3, script_dir / 'extra-install-cmd.py',
     install_prefix / install_aclocal_macrodir
   )
 endif
@@ -126,7 +121,9 @@ endif
 # into projects at Meson setup or configure time.
 doctool_basefiles = [
   'doc-install.pl',
+  'doc_install.py',
   'doc-postprocess.pl',
+  'doc_postprocess.py',
   'doxygen.css',
   'doxygen-extra.css',
   'tagfile-to-devhelp2.xsl',
@@ -251,7 +248,10 @@ endforeach
 
 # Create tar archive of skeletonmm for installation.
 skeletonmm_tarball_script = script_dir / 'skeletonmm-tarball.py'
-tarball_filetype = run_command(python3, skeletonmm_tarball_script, 'check')
+tarball_filetype = run_command(python3,
+  skeletonmm_tarball_script, 'check',
+  check: true,
+)
 tarball_filename = 'skeletonmm' + tarball_filetype.stdout()
 custom_target(tarball_filename,
   input: skeletonmm_files,
@@ -267,7 +267,7 @@ custom_target(tarball_filename,
   install_dir: install_docdir,
   install: true
 )
-install_data('README', install_dir: install_docdir)
+install_data('OVERVIEW.md', 'README.md', install_dir: install_docdir)
 
 # Either curl or wget is required for downloading libstdc++.tag,
 # used by Doxygen.
@@ -275,10 +275,10 @@ download_cmd = 'none'
 if get_option('use-network')
   curl = find_program('curl', required: false)
   if curl.found()
-    download_cmd = curl.path()
+    download_cmd = curl.full_path()
   else
     wget = find_program('wget', required: true)
-    download_cmd = wget.path()
+    download_cmd = wget.full_path()
   endif
 endif
 
@@ -302,8 +302,7 @@ if not meson.is_subproject() or meson.version().version_compare('>= 0.58.0')
   # Modify the contents of the distribution directory.
   # (not allowed in a subproject if meson.version() < 0.58.0)
   meson.add_dist_script(
-    python3.path(),
-    script_dir / 'extra-dist-cmd.py',
+    python3, script_dir / 'extra-dist-cmd.py',
     project_source_root,
     project_build_root,
   )
@@ -314,7 +313,7 @@ if meson.is_subproject()
   conf_data_subproj = configuration_data()
   conf_data_subproj.merge_from(conf_data)
   conf_data_subproj.set('configure_input', 'mm-common-get2 (for execution uninstalled).  Generated from util/mm-common-get.in')
-  conf_data_subproj.set('datadir_py', project_build_root)
+  conf_data_subproj.set('datadir_py', import('fs').as_posix(project_build_root))
   mm_common_get2 = configure_file(
     input: 'util' / 'mm-common-get.in',
     output: 'mm-common-get2',
@@ -326,7 +325,10 @@ if meson.is_subproject()
 import os
 import sys
 os.chmod(sys.argv[1], 0o755)'''
-  run_command(python3, '-c', cmd_py, project_build_root / 'mm-common-get2')
+  run_command(python3, '-c', cmd_py,
+    project_build_root / 'mm-common-get2',
+    check: true,
+  )
 
   # A main project that looks for mm-common-get shall find mm_common_get2.
   meson.override_find_program('mm-common-get', mm_common_get2)
@@ -337,11 +339,13 @@ os.chmod(sys.argv[1], 0o755)'''
     project_source_root / 'util' / 'build_scripts',
     project_build_root / meson.project_name() / 'build',
     meson_build_support_basefiles,
+    check: true,
   )
   run_command(python3, script_dir / 'copy-files.py',
     project_source_root / 'util',
     project_build_root / meson.project_name() / 'doctool',
     doctool_basefiles,
+    check: true,
   )
 
   mm_common_libstdc_dep = declare_dependency(
